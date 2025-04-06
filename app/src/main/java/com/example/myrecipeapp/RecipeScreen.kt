@@ -1,6 +1,7 @@
 package com.example.myrecipeapp
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -25,9 +26,10 @@ import coil.compose.rememberAsyncImagePainter
 @Composable
 fun RecipeScreen(
     modifier: Modifier = Modifier,
+    viewstate: MainViewModel.RecipeState,
+    navigateToDetail: (Category) -> Unit
 ) {
     val repcipeViewModel: MainViewModel = viewModel()
-    val viewstate by repcipeViewModel.categoriesState
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -42,7 +44,7 @@ fun RecipeScreen(
             }
 
             else -> {
-               CategoryScreen(categories = viewstate.list)
+                CategoryScreen(categories = viewstate.list, navigateToDetail)
             }
 
         }
@@ -50,32 +52,41 @@ fun RecipeScreen(
 }
 
 @Composable
-fun CategoryScreen(categories: List<Category>) {
+fun CategoryScreen(categories: List<Category>, navigateToDetail: (Category) -> Unit) {
     LazyVerticalGrid(
         GridCells.Fixed(2),
         modifier = Modifier.fillMaxSize(),
     ) {
-        items(categories) {
-                category ->
-            CategoryItem(category = category)
+        items(categories) { category ->
+            CategoryItem(category = category, navigateToDetail)
 
         }
     }
 }
 
 @Composable
-fun CategoryItem(category: Category) {
-    Column (
-        modifier = Modifier.padding(8.dp).fillMaxSize(),
+fun CategoryItem(
+    category: Category, navigateToDetail: (Category) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxSize()
+            .clickable {
+                navigateToDetail(category)
+            },
         horizontalAlignment = Alignment.CenterHorizontally
 
-    ){
+    ) {
         Image(
             painter = rememberAsyncImagePainter(category.strCategoryThumb),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize().aspectRatio(1f)
+            modifier = Modifier
+                .fillMaxSize()
+                .aspectRatio(1f)
         )
-        Text(text = category.strCategory,
+        Text(
+            text = category.strCategory,
             color = Color.Black,
             style = TextStyle(fontWeight = FontWeight.Bold),
             modifier = Modifier.padding(top = 4.dp)
